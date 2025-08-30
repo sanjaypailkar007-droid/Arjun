@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rise with Arjun - Interactive Game</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
+#game { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+#stats { font-weight: bold; margin-bottom: 15px; }
+button.choice {
+width: 100%;
+padding: 12px;
+margin: 7px 0;
+font-size: 1rem;
+background: #f7b733;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+button.choice:hover { background: #f4900c; }
+h2 { color: #444; }
+p { font-size: 1.1rem; }
+</style>
+</head>
+<body>
+
+<div id="game">
+<div id="stats">
+Confidence: <span id="confidence">50</span> |
+Knowledge: <span id="knowledge">50</span> |
+Morale: <span id="morale">50</span>
+</div>
+<div id="content"></div>
+</div>
+
+<script>
+const initialStats = { confidence: 50, knowledge: 50, morale: 50 };
+let stats = { ...initialStats };
+
+const passages = {
+start: {
+text: `<h2>First Day Arrival</h2>
+<p>Arjun ka pehla din hai. Nervous but hopeful.</p>
+<p>What should be his attitude?</p>`,
+choices: [
+{ text: "Main poora dhyan dunga, sab kuch seekhna hai.", goto: "learningFocus", effect: {confidence:10, morale:5} },
+{ text: "Bas jaldi se seekh ke field mein jaana chahta hoon.", goto: "impatientStart", effect: {confidence:8, morale:-5} }
+]
+},
+learningFocus: {
+text: `<h2>Orientation</h2>
+<p>Trainer: Bahut achha! Seekhne se confidence aayega. Dimaag ho toh sab kuch mumkin hai.</p>`,
+choices: [
+{ text: "Continue", goto: "lifeInsuranceBasics", effect: {} }
+]
+},
+impatientStart: {
+text: `<h2>Orientation</h2>
+<p>Manager: Jaldi results important hain, par galti mat karo.</p>`,
+choices: [
+{ text: "Continue", goto: "lifeInsuranceBasics", effect: {} }
+]
+},
+lifeInsuranceBasics: {
+text: `<h2>Product Basics</h2>
+<p>Trainer: Life insurance apke customers ke parivaar ki suraksha karta hai.</p>
+<p>Arjun: Sir, ye products itne complex kyun hain?</p>
+<p>Trainer: Term insurance, ULIP, endowment plans - har ek ka apna maksad hai.</p>
+<p>Quiz: Term insurance coverage duration kya hai?</p>`,
+choices: [
+{ text: "Policy ke term tak", goto: "correctQuizAnswer", effect: {knowledge:10} },
+{ text: "Sirf ek saal", goto: "incorrectQuizAnswer", effect: {} }
+]
+},
+correctQuizAnswer: {
+text: `<p>Correct! Term insurance policy duration tak coverage deta hai.</p>
+<p>Arjun's approach to product learning?</p>`,
+choices: [
+{ text: "Har product deep samajhta hoon.", goto: "leadSquaredIntro", effect: {knowledge:15, confidence:5} },
+{ text: "Basic samajh kar field mein seekhta hoon.", goto: "leadSquaredIntro", effect: {confidence:8, knowledge:-5} }
+]
+},
+incorrectQuizAnswer: {
+text: `<p>Incorrect. Term insurance covers the policy term duration.</p>
+<p>Try to learn more carefully.</p>
+<p>Arjun's approach to product learning?</p>`,
+choices: [
+{ text: "Har product deep samajhta hoon.", goto: "leadSquaredIntro", effect: {knowledge:10, confidence:5} },
+{ text: "Basic samajh kar field mein seekhta hoon.", goto: "leadSquaredIntro", effect: {confidence:8, knowledge:-5} }
+]
+},
+leadSquaredIntro: {
+text: `<h2>LeadSquared Training</h2>
+<p>Trainer: LeadSquared mein leads, follow-ups aur reports manage hote hain.</p>
+<p>Arjun: Thoda confusing lag raha hai, kaise seekhun?</p>`,
+choices: [
+{ text: "Roz LeadSquared pe practice karunga.", goto: "firstSimulation", effect: {knowledge:10, morale:5} },
+{ text: "Thoda time lagaunga, phir seekhunga.", goto: "firstSimulation", effect: {morale:3, knowledge:-7} }
+]
+},
+firstSimulation: {
+text: `<h2>Simulation First Attempt</h2>
+<p>AI Customer: Policy mehengi lag rahi hai, faayda samjhao.</p>
+<p>Arjun ka jawab kya hoga?</p>`,
+choices: [
+{ text: "Policy mehengi nahi hai, apke pariwar ki suraksha.", goto: "simulationFeedbackGood", effect: {confidence:15, knowledge:10} },
+{ text: "Thoda mehenga hai, par zaroori hai.", goto: "simulationFeedbackBad", effect: {confidence:-10, morale:-5} }
+]
+},
+simulationFeedbackGood: {
+text: `<p>Trainer: Wah! Confident answer! Tum field ke liye ready ho.</p>`,
+choices: [
+{ text: "Next", goto: "buddyDSECoaching", effect: {} }
+]
+},
+simulationFeedbackBad: {
+text: `<p>Trainer: Confidence dikhana seekho, customer confuse mat karo.</p>`,
+choices: [
+{ text: "Next", goto: "buddyDSECoaching", effect: {} }
+]
+},
+buddyDSECoaching: {
+text: `<h2>Buddy DSE Coaching</h2>
+<p>Buddy: LeadSquared ka sahi use karna seekho, nahi toh leads miss honge.</p>`,
+
+choices: [
+{ text: "Buddy ki help lo", goto: "firstFieldVisit", effect: {knowledge:10, confidence:10} },
+{ text: "Apni marzi se seekhunga", goto: "firstFieldVisit", effect: {knowledge:-5, confidence:5} }
+]
+},
+firstFieldVisit: {
+text: `<h2>First Field Visit</h2>
+<p>Customer: Insurance ka faayda batao.</p>`,
+choices: [
+{ text: "Financial suraksha deti hai", goto: "firstFieldOutcome", effect: {morale:10, confidence:10} },
+{ text: "Form bhar do jaldi se", goto: "firstFieldOutcome", effect: {morale:-10, confidence:-5} }
+]
+},
+firstFieldOutcome: {
+text: `<p>Interaction complete. Arjun learns from experience.</p>`,
+choices: [
+{ text: "Next", goto: "managingRejections", effect: {} }
+]
+},
+managingRejections: {
+text: `<h2>Handling Rejections</h2>
+<p>Arjun feels demotivated due to customer rejections.</p>
+<p>Arjun (self): “Itne rejections… Kabhi kabhi lagta hai main nahi kar paunga.”</p>
+<p>Trainer (approaches): “Har rejection me seekh hoti hai, himmat mat khona.”</p>`,
+choices: [
+{ text: "Himmat rakho aur seekho", goto: "managerFeedback", effect: {morale:15, confidence:10} },
+{ text: "Chhod doon shayad?", goto: "managerFeedback", effect: {morale:-15, confidence:-10} }
+]
+},
+managerFeedback: {
+text: `<h2>Manager Feedback</h2>
+<p>Manager: LeadSquared aur follow-ups mein sudhaar zaruri hai.</p>
+<p>Arjun: “Ji sir, main poori koshish karunga.”</p>`,
+choices: [
+{ text: "Mehnat karunga", goto: "overcomingObjections", effect: {knowledge:10, morale:10} },
+{ text: "Pressure zyada hai", goto: "overcomingObjections", effect: {morale:-10, confidence:-10} }
+]
+},
+overcomingObjections: {
+text: `<h2>Handling Tough Objections</h2>
+<p>Customer: “Policy se faayda nahi hoga.”</p>
+<p>Arjun: “Policy long-term financial protection deti hai.”</p>`,
+choices: [
+{ text: "Clear explanation doon", goto: "timeManagement", effect: {confidence:10, knowledge:10} },
+{ text: "Bas kehdo policy faayda deti hai", goto: "timeManagement", effect: {confidence:-10, morale:-5} }
+]
+},
+timeManagement: {
+text: `<h2>Time Management</h2>
+<p>Buddy DSE: Follow-ups ko zyada priority dena chahiye.</p>`,
+choices: [
+{ text: "Follow-ups priority doon", goto: "workLifeBalance", effect: {confidence:10, morale:5} },
+{ text: "Naye leads pe focus karunga", goto: "workLifeBalance", effect: {knowledge:-5, morale:-5} }
+]
+},
+workLifeBalance: {
+text: `<h2>Work-Life Balance</h2>
+<p>Arjun: Office aur ghar dono sambhalna tough lagta hai.</p>
+<p>Family: Hum tumhare saath hain. Apna dhyan rakhna.</p>`,
+choices: [
+{ text: "Family support lunga", goto: "firstSmallSale", effect: {morale:15} },
+{ text: "Ignore karunga emotions", goto: "firstSmallSale", effect: {morale:-10, confidence:-5} }
+]
+},
+firstSmallSale: {
+text: `<h2>First Small Sale Success</h2>
+<p>Arjun: Pehli sale complete hui!</p>
+<p>Manager: Bahut badiya! Aise hi mehnat karte raho.</p>`,
+choices: [
+{ text: "Celebrate aur mehnat jaari rakho", goto: "missedFollowUp", effect: {morale:20, confidence:15} },
+{ text: "Complacent ho jao", goto: "missedFollowUp", effect: {morale:-10, confidence:-10} }
+]
+},
+missedFollowUp: {
+text: `<h2>Missed Follow-up</h2>
+<p>Buddy DSE: Lead ko follow-up nahi kiya, sale miss hui.</p>`,
+choices: [
+{ text: "Seekh kar improve karunga", goto: "leadSquaredMastery", effect: {knowledge:10, morale:10} },
+{ text: "Busy tha, phir dhyan dunga", goto: "leadSquaredMastery", effect: {morale:-10, confidence:-5} }
+]
+},
+leadSquaredMastery: {
+text: `<h2>LeadSquared Mastery</h2>
+<p>Buddy DSE: Roz LeadSquared pe kaam karo, leads strong rakhoge.</p>`,
+choices: [
+{ text: "Roz practice karunga", goto: "managerRecognition", effect: {knowledge:20, morale:15} },
+{ text: "Kabhi kabhi karta hoon", goto: "managerRecognition", effect: {confidence:-10, morale:-10} }
+]
+},
+managerRecognition: {
+text: `<h2>Manager Recognition</h2>
+<p>Manager: Tumhari growth achhi hai. Aage aur mehnat ki zaroorat hai.</p>`,
+choices: [
+{ text: "Humble raho, seekhne ko taiyar hoon", goto: "teamSupport", effect: {morale:15, confidence:15} },
+{ text: "Main ab sab kuch kar leta hoon", goto: "teamSupport", effect: {morale:5, confidence:10} }
+]
+},
+teamSupport: {
+text: `<h2>Team Support</h2>
+<p>Buddy DSE: Team ke sath kaam karne se fayda hota hai.</p>`,
+choices: [
+{ text: "Team ke sath milkar kaam karunga", goto: "majorSale", effect: {morale:15} },
+{ text: "Apne tareeke se kaam karna better samajhta hoon", goto: "majorSale", effect: {morale:-10} }
+]
+},
+majorSale: {
+text: `<h2>Major Sale Negotiation</h2>
+<p>Customer: Terms aur benefits clear karo.</p>`,
+choices: [
+{ text: "Dhyaan se suno aur jawab do", goto: "reflectOnJourney", effect: {confidence:20, morale:15} },
+{ text: "Form bharwa lo, baad mein details bata dena", goto: "reflectOnJourney", effect: {morale:-10, confidence:-10} }
+]
+},
+reflectOnJourney: {
+text: `<h2>Reflection</h2>
+<p>Arjun: Seekh aur mehnat se aage badh raha hoon.</p>
+<p>Family Support: Hum tumpar fakr karte hain.</p>`,
+choices: [
+{ text: "Growth ko appreciate karta hoon", goto: "endings", effect: {morale:20} },
+{ text: "Kabhi kabhi frustration hota hai", goto: "endings", effect: {morale:-15} }
+]
+},
+endings: {
+text: `<h2>Final Evaluation</h2>
+<p id="endingText"></p>
+<button class="choice" onclick="restartGame()">Restart Game</button>`
+}
+};
+
+function updateStats(c = 0, k = 0, m = 0) {
+stats.confidence = Math.min(100, Math.max(0, stats.confidence + c));
+stats.knowledge = Math.min(100, Math.max(0, stats.knowledge + k));
+stats.morale = Math.min(100, Math.max(0, stats.morale + m));
+updateStatsUI();
+}
+
+function updateStatsUI() {
+document.getElementById('confidence').textContent = stats.confidence;
+document.getElementById('knowledge').textContent = stats.knowledge;
+document.getElementById('morale').textContent = stats.morale;
+}
+
+function showPassage(key) {
+const passage = passages[key];
+if (!passage) {
+alert('Scene missing: ' + key);
+return;
+}
+const content = document.getElementById('content');
+content.innerHTML = passage.text;
+
+// Clear existing buttons
+const oldButtons = content.querySelectorAll('button.choice');
+oldButtons.forEach(btn => btn.remove());
+
+// Add choice buttons
+if (passage.choices) {
+passage.choices.forEach(choice => {
+const btn = document.createElement('button');
+btn.className = 'choice';
+btn.textContent = choice.text;
+btn.onclick = () => {
+updateStats(
+choice.effect.confidence || 0,
+choice.effect.knowledge || 0,
+choice.effect.morale || 0
+);
+showPassage(choice.goto);
+};
+content.appendChild(btn);
+});
+}
+
+// Show ending text if final scene
+if (key === 'endings') {
+const sum = stats.confidence + stats.knowledge + stats.morale;
+let text = '';
+if (sum >= 210) {
+text = `<strong>Star Performer:</strong> Bahut badhiya! Tum ABSLI ke star performer ban gaye ho. Mehnat aur sahi seekhne ki wajah se sab mumkin hai!`;
+} else if (sum >= 150) {
+text = `<strong>Steady Growth:</strong> Tum acche progress pe ho, aur mehnat karte raho!`;
+} else {
+text = `<strong>Needs Improvement:</strong> Mushkilein common hain, seekhna jari rakho, kabhi haar mat mano!`;
+}
+const endingText = document.getElementById('endingText');
+if (endingText) endingText.innerHTML = text;
+}
+}
+
+function restartGame() {
+stats = { ...initialStats };
+updateStatsUI();
+showPassage('start');
+}
+
+window.onload = () => {
+updateStatsUI();
+showPassage('start');
+};
+</script>
+</body>
+</html>
